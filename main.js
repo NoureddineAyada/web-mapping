@@ -156,6 +156,13 @@ fichier[0].addEventListener("change", () => {
           layerGroup.appendChild(div);
         
     }
+    
+  });
+
+  
+
+
+  document.body.addEventListener('change',() =>{
     const checkInput=document.getElementsByClassName('check');
     for(let i=0; i<checkInput.length; i++){
       
@@ -167,24 +174,7 @@ fichier[0].addEventListener("change", () => {
       });
       
     };
-  });
-
-  
-
-
-  // document.body.addEventListener('change',() =>{
-  //   const checkInput=document.getElementsByClassName('check');
-  //   for(let i=0; i<checkInput.length; i++){
-      
-  //     maCarte.getLayers().forEach(element => {
-  //       if(element.get('name') === checkInput[i].name){
-  //         element.setVisible(checkInput[i].checked);
-  //       }
-          
-  //     });
-      
-  //   };
-  // })
+  })
 
 
 
