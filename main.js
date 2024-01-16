@@ -83,10 +83,9 @@ let SHPloader = function (extent, resolution, projection) {
 };
 
 
-
-const fichier=document.getElementsByClassName('input')
-fichier[0].addEventListener("change", () => {
-    const file = fichier[0].files[0]
+const fichier=document.getElementById('files')
+fichier.addEventListener("change", () => {
+    const file = fichier.files[0]
     const fileExtension = file.name.split('.').pop();
     console.log(fileExtension)
     const path = URL.createObjectURL(file);
@@ -178,10 +177,78 @@ fichier[0].addEventListener("change", () => {
 
 
 
+  const points=document.getElementById('points')
+  points.addEventListener('change',function(){
+    var file = points.files[0]
+    const fileExtension = file.name.split('.').pop();
+    const layerGroup = document.getElementsByClassName('layergroup')[0];
+    const div = document.createElement('div');
+    div.className = 'layer';
+    div.innerHTML='<input class="check" type="checkbox" name="'+file.name+'" checked><h3>'+file.name+'</h3><select id="'+file.name+'"><option value="" selected disabled>Liste</option></select>';
+    layerGroup.appendChild(div);
+    const path = URL.createObjectURL(file);
+    const stl = new ol.style.Style({
+      image: new ol.style.Circle({
+          radius: 5,
+          fill: new ol.style.Fill({ color: 'green' }),
+          stroke: new ol.style.Stroke({ color: 'black', width: 2 })
+      })
+    });
 
+    var src = new ol.source.Vector({wrapX: false});
+    var vector = new ol.layer.Vector({
+      source: src,
+      style:stl,
+      title:file.name,
+      name:file.name
+    })
+
+    var select = document.getElementById(file.name)
+    console.log(select)
+    var reader = new FileReader()
+    reader.readAsText(file)
+    reader.onload=function(e){
+      var data = e.target.result;
+      var lignes = data.split('\n');
+      for(let i=1;i<lignes.length;i++){
+        var col = lignes[i].split('\t')
+        if(isNaN(col[0])==false && isNaN(col[1])==false && isNaN(col[2])==false){
+          var option = document.createElement("option");
+          option.value = col[0];
+          option.text = col[0];
+          select.appendChild(option);
+          var x = parseFloat(col[1])
+          var y = parseFloat(col[2])
+          src.addFeature(new ol.Feature({
+            geometry:new ol.geom.Point(ol.proj.fromLonLat([x, y])),
+            id:col[0],
+          }));
+        }
+        
+        
+      }
+      maCarte.addLayer(vector)
+    }
+
+  })
   
 
-
+ // Zoom to Point
+ $(document).ready(function(){
+  $(document).on('change','select',function(e){
+    var layers = maCarte.getLayers();
+    console.log(e.target.selectedOptions[0].value)
+    layers.forEach((layer)=>{
+      if(layer.get('title')=== e.target.id){
+        layer.getSource().getFeatures().forEach((feat)=>{
+          if(feat.get('id') === e.target.selectedOptions[0].value){
+            maCarte.getView().animate({center:feat.getGeometry().getCoordinates(),zoom:13, duration: 2000 })
+          }
+        })
+      }
+    })
+  })
+})
 
 
 
